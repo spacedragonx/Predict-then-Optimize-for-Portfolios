@@ -1,79 +1,47 @@
-# DeepSPO
+# SPO-LSTM: Smart Portfolio Optimization
 
-## Project Summary
-**Intraday Market ML Pipeline** is an end-to-end project focused on building a machine-learning–ready intraday stock market dataset from raw exchange data. The project covers **data ingestion, cleaning, session-aware preprocessing, feature engineering, and modeling**, with a strong emphasis on avoiding data leakage and preserving true market structure.
+A PyTorch-based Deep Learning framework that implements **Smart Portfolio Optimization (SPO)**. Unlike traditional methods that predict prices first, this model uses an **LSTM (Long Short-Term Memory)** network to directly output optimal asset weights by maximizing risk-adjusted returns (Sharpe Ratio).
 
-The ultimate goal is to train robust ML models that learn from **real tradable market time**, not artificial or corrupted timestamps.
+[Image of LSTM architecture for time series forecasting]
 
----
+## 🎯 Project Overview
+This project treats portfolio optimization as a differentiable end-to-end learning problem. The model learns to map historical financial features directly to portfolio weights $w$, optimizing a custom loss function based on the negative Sharpe Ratio.
 
-# Step 1: Intraday Data Cleaning & Preprocessing
+## 🚀 Key Features
+* **End-to-End Optimization:** Direct optimization of the Sharpe Ratio via `spo_sharpe_loss`.
+* **Temporal Modeling:** Uses LSTM layers to capture multi-asset correlations and time-series dependencies.
+* **Leakage-Free Validation:** Implements a chronological 80/20 split to ensure realistic backtesting.
+* **Automated Benchmarking:** Real-time comparison against an **Equal-Weight (EW)** strategy.
+* **PyTorch 2.6+ Ready:** Uses `weights_only=True` for secure data loading.
 
-## Data Source
-- **Provider**: Alpaca Markets API (SIP feed)
-- **Resolution**: 1‑minute OHLCV bars
-- **Timezone (raw)**: UTC
-- **Index**: Often returned as a MultiIndex (`symbol`, `timestamp`)
+## 🛠️ Tech Stack
+* **Core:** Python, PyTorch
+* **Data Handling:** NumPy, Torch DataLoader
+* **Visualization:** Matplotlib
+* **Optimization:** Adam Optimizer
 
----
+## 📁 Repository Structure
+* `models.py`: Contains `PortfolioNet`, `FinancialDataset`, and the `spo_sharpe_loss` function.
+* `train_spo.py`: The main training loop, backtesting logic, and plotting.
+* `data_save/`: Directory for preprocessed `.pt` tensors.
+* `Trained_Models/`: Storage for model checkpoints and state dicts.
+* `Graphs/`: Output directory for equity curves and performance metrics.
 
-## Problems in Raw Data
+## ⚙️ How It Works
 
-- **Incorrect timezone** (UTC instead of New York time)
-- **MultiIndex structure** breaks time-based operations
-- **Off-hours & holiday trades** appear in SIP feed
-- **Missing intraday minutes** (no trades in some minutes)
-- **Overnight/weekend gaps** cause fake continuity if not handled correctly
+### 1. The Model Architecture
+The `PortfolioNet` processes a sequence of features (default `SEQ_LEN = 20`) for all tickers. It outputs a weight vector that is constrained to sum to 1.
 
----
+[Image of Sharpe ratio formula and efficient frontier]
 
-## Cleaning Strategy (Solutions)
+### 2. Loss Function
+The model minimizes the **Negative Sharpe Ratio**:
+$$Loss = -\frac{E[R_p]}{\sigma(R_p)}$$
+where $R_p$ is the portfolio return calculated as $\sum (weights \times returns)$.
 
-1. **Fix index structure**  
-   Convert MultiIndex → pure `DatetimeIndex`.
+## 📊 Quick Start
 
-2. **Timezone normalization**  
-   Convert timestamps to `America/New_York`.
-
-3. **Filter real market hours**  
-   Keep only weekdays and regular session (09:30–16:00 ET).
-
-4. **Session-aware processing**  
-   Group data by trading day to prevent cross-day leakage.
-
-5. **Intraday resampling (per day)**  
-   Resample to a full 1‑minute grid using `asfreq()`.
-
-6. **Safe filling**  
-   - Forward-fill OHLC prices (no future leakage)
-   - Zero-fill volume
-   - Add `was_filled` flag for synthetic candles
-
-7. **Drop invalid rows**  
-   Remove leading NaNs before the first real trade.
-
----
-
-## Handling Nights, Weekends & Holidays
-
-- No rows are created for closed-market periods
-- Holidays (e.g., Jan 1) naturally disappear if no session exists
-- Timeline jumps directly from close → next open
-
-This reflects **true tradable market time**.
-
----
-
-## Result
-
-The cleaned dataset:
-- Contains only real trading minutes
-- Has uniform 1‑minute spacing per session
-- Is timezone-correct
-- Is safe for ML and quantitative analysis
-
----
-
-**This forms the first preprocessing stage of the project.**
-
-
+1. **Prepare Data:** Ensure your processed tensor is at `data_save/25_spo_data.pt`.
+2. **Run Training:**
+   ```bash
+   python train_spo.py
