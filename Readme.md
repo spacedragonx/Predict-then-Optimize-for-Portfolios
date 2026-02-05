@@ -45,3 +45,5 @@ where $R_p$ is the portfolio return calculated as $\sum (weights \times returns)
 2. **Run Training:**
    ```bash
    python train_spo.py
+
+   https://github.com/spacedragonx/Predict-then-Optimize-for-Portfolios/blob/main/Graphs/Logo.png?raw=true
