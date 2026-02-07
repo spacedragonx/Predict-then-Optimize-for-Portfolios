@@ -117,6 +117,21 @@ In the example below:
 
 This behavior emerges naturally from the objective—no hand-crafted rules.
 
+## Portfolio Returns & Benchmark Comparison
+
+To evaluate real-world effectiveness, the learned SPO policy is compared against a simple **Equal-Weight (EW)** benchmark over the same test period.
+
+<img width="800" height="400" alt="Portfolio Returns vs Equal Weight" src="https://github.com/spacedragonx/Predict-then-Optimize-for-Portfolios/blob/main/Graphs/spo_vs_benchmark.png?raw=true">
+
+### Performance Interpretation
+- The **SPO-LSTM strategy** compounds returns by dynamically reallocating capital based on learned market signals.
+- The **Equal-Weight baseline** serves as a passive benchmark with no allocation intelligence.
+- Outperformance indicates that the model is not merely fitting noise, but learning **allocation decisions that improve risk-adjusted returns**.
+
+Because the model optimizes the Sharpe Ratio directly, improvements are driven by:
+- Better downside protection during volatile periods
+- Reduced exposure ahead of drawdowns
+- Adaptive concentration when favorable trends emerge
 
 ---
 ##  Repository Structure
